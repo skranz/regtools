@@ -1,11 +1,11 @@
 Package: regtools
 Type: Package
-Title: Easier present regressions results as in economics articles.
+Title: Tools for presenting regressions results
 Version: 0.1
 Date: 2014-08-14
 Author: Sebastian Kranz
 Maintainer: Sebastian Kranz <sebastian.kranz@uni-ulm.de>
-Description: Easier present regression results as in economics articles. E.g. easy inclusion of robust standard errors and marginal effects. Consists mostly of wrapper and glue functions to texreg, sandwich, mfx etc. Not yet thoroghly tested.
+Description: Mainly, shall make it easier to present regression results like in economics articles. E.g. easy inclusion of robust standard errors and marginal effects. Consists mostly of wrapper and glue functions to texreg, sandwich, mfx etc. Not yet thoroghly tested.
 License: GPL>=2.0
 Depends: restorepoint, texreg, sandwich
 Imports: mfx
