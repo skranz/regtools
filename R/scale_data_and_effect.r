@@ -25,7 +25,6 @@ examples.effectplot = function() {
 #' Change units of columns in a data frame, e.g. measure relative to one standard deviation
 #' 
 #' useful to make coefficients in regressions better comparable
-
 scale.data.cols = function(dat,unit="sd",cols = setdiff(colnames(dat),exclude), exclude=NULL, dummy01=TRUE) {
   
   units = lapply(colnames(dat), function(col) {
@@ -176,6 +175,8 @@ get.effect.base.df = function(dat, numeric.effect = "10-90", dummy01 = TRUE) {
   df
 }
 
+#' Simple function to compute effect sizes used by effectplot
+#' @export
 get.effect.sizes = function(reg, dat,
     vars=intersect(colnames(dat), names(coef(reg))),
     scale.depvar=NULL, depvar = names(reg$model)[[1]],data.fun = NULL,numeric.effect="10-90", dummy01=TRUE, predict.type="response") {
@@ -243,6 +244,7 @@ get.effect.sizes = function(reg, dat,
 #' @param sort if TRUE (default) sort the effects by size
 #' @param scale.depvar
 #' @param depvar name of the dependent variable  
+#' @export
 effectplot = function(reg, dat,
   vars=intersect(colnames(dat), names(coef(reg))),
   numeric.effect="10-90", dummy01=TRUE,
@@ -274,7 +276,7 @@ effectplot = function(reg, dat,
 #' Graphically compare sizes of regression coefficient
 #' 
 #' mainly useful if regression is run on data that has been normalized by set.data.units
-#' 
+#' @export
 coefplot = function(reg,data=NULL, sort=TRUE, remove.intercept=TRUE, show.units=!is.null(data)) {
   library(ggplot2)
   
