@@ -4,11 +4,12 @@
 \title{Plot for regressions to compare effects sizes of normalized changes in the explanatory variables}
 \usage{
 effectplot(reg, dat, vars = intersect(colnames(dat), names(coef(reg))),
-  numeric.effect = "10-90", dummy01 = TRUE, sort = TRUE,
-  scale.depvar = NULL, depvar = names(reg$model)[[1]],
+  ignore.vars = NULL, numeric.effect = "10-90", dummy01 = TRUE,
+  sort = TRUE, scale.depvar = NULL, depvar = names(reg$model)[[1]],
   xlab = "Explanatory variables\\n(low baseline high)",
   ylab = paste0("Effect on ", depvar, ""), colors = c(pos = "#11AAAA", neg =
-  "#EE3355"), ...)
+  "#EE3355"), effect.sizes = NULL, effect.bases = NULL, horizontal = TRUE,
+  show.ci = FALSE, ci.prob = c(0.05, 0.95), ...)
 }
 \arguments{
 \item{reg}{the results from a regression, e.g. from a call to lm or glm}
@@ -26,6 +27,16 @@ effectplot(reg, dat, vars = intersect(colnames(dat), names(coef(reg))),
 \item{scale.depvar}{}
 
 \item{depvar}{name of the dependent variable}
+
+\item{xlab,}{ylab labels}
+
+\item{colors}{colors for positive values (pos) and negative values (neg)}
+
+\item{horizontal}{shall bars be shown horizontally}
+
+\item{show.ci}{shall confidence intervals be shown}
+
+\item{ci.prob}{left and right probability level for confidence intervals}
 }
 \description{
 The plot shall help to compare magnitudes of the influence of different explanatory variables. The default effect is "10-90", i.e. the effect of when -ceteris paribus- changing an (numeric) explanatory variable from its 10% quantile value to its 90% quantile. For dummy variables, we just consider the effect from changing it from 0 to 1.

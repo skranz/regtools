@@ -5,7 +5,9 @@
 \usage{
 get.effect.sizes(reg, dat, vars = intersect(colnames(dat), names(coef(reg))),
   scale.depvar = NULL, depvar = names(reg$model)[[1]], data.fun = NULL,
-  numeric.effect = "10-90", dummy01 = TRUE, predict.type = "response")
+  numeric.effect = "10-90", dummy01 = TRUE, predict.type = "response",
+  effect.bases = NULL, compute.se = FALSE, ci.prob = 0.95,
+  repl.for.se = 1000)
 }
 \description{
 Simple function to compute effect sizes used by effectplot
