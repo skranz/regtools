@@ -42,3 +42,25 @@ effectplot(reg, dat, vars = intersect(colnames(dat), names(coef(reg))),
 The plot shall help to compare magnitudes of the influence of different explanatory variables. The default effect is "10-90", i.e. the effect of when -ceteris paribus- changing an (numeric) explanatory variable from its 10% quantile value to its 90% quantile. For dummy variables, we just consider the effect from changing it from 0 to 1.
 }
 
+\examples{\dontrun{
+  # simulate some data
+  set.seed(12345)
+  n = 1000
+  x = rnorm(n)
+  z = rnorm(n)
+  q = rnorm(n)
+  
+  # binary outcome
+  y = ifelse(pnorm(1 + 0.5*x + 0.25*x^2 - 0.5*z + rnorm(n))>0.5, 1, 0)
+
+  data = data.frame(y,x,z,q)
+  # Logit regression
+  reg = glm(y~x + x^2 + z +q, data=data, family="binomial")
+  effectplot(reg,data,main="Effects", horizontal=TRUE, show.ci=TRUE)
+  
+  sdata = scale.data.cols(data,"10-90")
+  sreg = glm(y~x + x^2 + z +q, data=sdata, family="binomial")
+  summary(sreg)
+  coefplot(sreg,sdata)
+
+}}

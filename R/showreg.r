@@ -46,7 +46,11 @@ examples.showreg = function() {
 
 }
 
-#' An extension of screenreg, texreg and htmlreg that allows for robust standard errors.
+#' Show and compare regression results
+#' 
+#' The function extends and wraps the screenreg, texreg and htmlreg functions in the texreg package. It allows for robust standard errors (also clustered robust standard errors) and can show marginal effects in glm models.
+#' 
+#' @param l list of models as in screenreg
 #' @param custom.model.names custom titles for each model
 #' @param robust shall robust standard errors be used? Logical single number or a vector specifying for each model.
 #' @param robust.type the type of robust standard errors. Can be "HAC", "cluster" or "HC1"-"HC4"
