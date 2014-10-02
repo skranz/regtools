@@ -94,6 +94,8 @@ vcovRobust = function(model, type="HC3", cluster1=NULL,cluster2=NULL,...) {
     vcovCluster(model, cluster1, cluster2,...)  
   } else if (type=="HAC") {
     vcovHAC(model,...)
+  } else if (type=="NeweyWest") {
+    NeweyWest(model,...)
   } else {
     vcovHC(model, type,...)
   }

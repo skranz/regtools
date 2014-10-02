@@ -14,6 +14,8 @@ examples.showreg = function() {
 
   showreg(list(iv=iv,iv.rob=iv, ols=ols,  ols.rob=ols),
           robust=c(FALSE,TRUE,FALSE,TRUE), robust.type="HC4")  
+  showreg(list(iv=iv,iv.rob=iv, ols=ols,  ols.rob=ols),
+          robust=c(FALSE,TRUE,FALSE,TRUE), robust.type="NeweyWest", prewhite=FALSE)  
 
 
   # Marginal effect for probit regression
@@ -53,7 +55,8 @@ examples.showreg = function() {
 #' @param l list of models as in screenreg
 #' @param custom.model.names custom titles for each model
 #' @param robust shall robust standard errors be used? Logical single number or a vector specifying for each model.
-#' @param robust.type the type of robust standard errors. Can be "HAC", "cluster" or "HC1"-"HC4"
+#' @param robust.type the type of robust standard errors. Can be "HAC", "cluster", "HC1" to "HC4" or "NeweyWest"
+#' @param vcov.list optional a list of covariance matrices of the coefficients for every model
 #' @param cluster1 and cluster2 if clustered robust standard errors are computed the name of the variables that shall be clustered by
 #' @param coef.transform either NULL or a vector containing "no" or "mfx", if an entry is "mfx" we show the marginal effects of the corresponding model. 
 #' @param ... additional parameters for screenreg, texreg or htmlreg
