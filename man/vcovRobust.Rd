@@ -5,6 +5,9 @@
 \usage{
 vcovRobust(model, type = "HC3", cluster1 = NULL, cluster2 = NULL, ...)
 }
+\arguments{
+\item{type}{the type of robust standard errors. Can be "HAC", "cluster", "HC1" to "HC4" or "NeweyWest"}
+}
 \description{
 Wrapper to get robust vcov of different kinds
 }

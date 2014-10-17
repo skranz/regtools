@@ -302,10 +302,10 @@ compute.effect.size.se = function(reg, repl.for.se,newdata,scale=1, add.intercep
 #' @param reg the results from a regression, e.g. from a call to lm or glm
 #' @param dat the data frame the regression was estimated from
 #' @param vars the explanatory variables that shall be shown in the regression lplot
-#' @param numeric.effect a code describing the lowest and highest values of numeric explanatory variables used to calculate the effect, e.g. "05-95" means taking the effect of moving from the 5% to the 95% quantile.
+#' @param numeric.effect a code describing the lowest and highest values of numeric explanatory variables used to calculate the effect, e.g. "05-95" means taking the effect of moving from the 5 percent to the 95 percent quantile.
 #' @param dummy01 shall numeric varibles that have only 0 and 1 as values be treated as a dummy variables?
 #' @param sort if TRUE (default) sort the effects by size
-#' @param scale.depvar
+#' @param scale.depvar a scaling for the dependent variable
 #' @param depvar name of the dependent variable
 #' @param xlab, ylab labels
 #' @param colors colors for positive values (pos) and negative values (neg)  

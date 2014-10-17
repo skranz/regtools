@@ -4,23 +4,31 @@
 \title{Show and compare regression results}
 \usage{
 showreg(l, custom.model.names = names(l), robust = FALSE,
-  robust.type = "HC3", cluster1 = NULL, cluster2 = NULL,
-  coef.transform = NULL, vcov.li = NULL, coef.mat.li = NULL, digits = 2,
+  robust.type = "HC3", cluster1 = NULL, cluster2 = NULL, vcov.li = NULL,
+  coef.transform = NULL, coef.mat.li = NULL, digits = 2,
   output = c("text", "html", "latex"), output.fun = NULL, doctype = FALSE,
   ...)
 }
 \arguments{
 \item{l}{list of models as in screenreg}
 
-\item{custom.model.names}{custom titles for each model}
+\item{custom.model.names}{custom titles for each model. By default the names of the model list.}
 
 \item{robust}{shall robust standard errors be used? Logical single number or a vector specifying for each model.}
 
-\item{robust.type}{the type of robust standard errors. Can be "HAC", "cluster" or "HC1"-"HC4"}
+\item{robust.type}{the type of robust standard errors. Can be "HAC", "cluster", "HC1" to "HC4" or "NeweyWest". Can be a vector specifying a type for each model.}
 
-\item{cluster1}{and cluster2 if clustered robust standard errors are computed the name of the variables that shall be clustered by}
+\item{cluster1}{and cluster2 if clustered robust standard errors are used, the name of the variables that shall be clustered by}
+
+\item{vcov.list}{optional a list of covariance matrices of the coefficients for every model}
 
 \item{coef.transform}{either NULL or a vector containing "no" or "mfx", if an entry is "mfx" we show the marginal effects of the corresponding model.}
+
+\item{coef.mat.li}{for highest flexibility, you can also provide a list that contains for each model a matrix or data.frame as returned by coeftest with the columns: coefficent, se, t-value, p-value.}
+
+\item{output}{either "text", "html" or "latex"}
+
+\item{output.fun}{allows a manual output function, e.g. if one has overloaded the design of screenreg, texreg or htmlreg.}
 
 \item{...}{additional parameters for screenreg, texreg or htmlreg}
 }
@@ -43,6 +51,8 @@ The function extends and wraps the screenreg, texreg and htmlreg functions in th
 
   showreg(list(iv=iv,iv.rob=iv, ols=ols,  ols.rob=ols),
           robust=c(FALSE,TRUE,FALSE,TRUE), robust.type="HC4")  
+  showreg(list(iv=iv,iv.rob=iv, ols=ols,  ols.rob=ols),
+          robust=c(FALSE,TRUE,FALSE,TRUE), robust.type="NeweyWest", prewhite=FALSE)  
 
 
   # Marginal effect for probit regression

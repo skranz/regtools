@@ -53,16 +53,19 @@ examples.showreg = function() {
 #' The function extends and wraps the screenreg, texreg and htmlreg functions in the texreg package. It allows for robust standard errors (also clustered robust standard errors) and can show marginal effects in glm models.
 #' 
 #' @param l list of models as in screenreg
-#' @param custom.model.names custom titles for each model
+#' @param custom.model.names custom titles for each model. By default the names of the model list.
 #' @param robust shall robust standard errors be used? Logical single number or a vector specifying for each model.
-#' @param robust.type the type of robust standard errors. Can be "HAC", "cluster", "HC1" to "HC4" or "NeweyWest"
+#' @param robust.type the type of robust standard errors. Can be "HAC", "cluster", "HC1" to "HC4" or "NeweyWest". Can be a vector specifying a type for each model.
+#' @param cluster1 and cluster2 if clustered robust standard errors are used, the name of the variables that shall be clustered by
 #' @param vcov.list optional a list of covariance matrices of the coefficients for every model
-#' @param cluster1 and cluster2 if clustered robust standard errors are computed the name of the variables that shall be clustered by
-#' @param coef.transform either NULL or a vector containing "no" or "mfx", if an entry is "mfx" we show the marginal effects of the corresponding model. 
+#' @param coef.transform either NULL or a vector containing "no" or "mfx", if an entry is "mfx" we show the marginal effects of the corresponding model.
+#' @param coef.mat.li for highest flexibility, you can also provide a list that contains for each model a matrix or data.frame as returned by coeftest with the columns: coefficent, se, t-value, p-value.
+#' @param output either "text", "html" or "latex"
+#' @param output.fun allows a manual output function, e.g. if one has overloaded the design of screenreg, texreg or htmlreg. 
 #' @param ... additional parameters for screenreg, texreg or htmlreg
 #' 
 #' @export
-showreg = function(l,custom.model.names=names(l), robust = FALSE, robust.type = "HC3", cluster1=NULL, cluster2=NULL,coef.transform = NULL, vcov.li=NULL, coef.mat.li = NULL, digits = 2, output=c("text","html","latex"), output.fun = NULL, doctype = FALSE,...){
+showreg = function(l,custom.model.names=names(l), robust = FALSE, robust.type = "HC3", cluster1=NULL, cluster2=NULL,vcov.li=NULL,coef.transform = NULL, coef.mat.li = NULL, digits = 2, output=c("text","html","latex"), output.fun = NULL, doctype = FALSE,...){
   restore.point("showreg")
 
   if (is.null(output.fun)) {

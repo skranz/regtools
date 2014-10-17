@@ -18,13 +18,13 @@ effectplot(reg, dat, vars = intersect(colnames(dat), names(coef(reg))),
 
 \item{vars}{the explanatory variables that shall be shown in the regression lplot}
 
-\item{numeric.effect}{a code describing the lowest and highest values of numeric explanatory variables used to calculate the effect, e.g. "05-95" means taking the effect of moving from the 5% to the 95% quantile.}
+\item{numeric.effect}{a code describing the lowest and highest values of numeric explanatory variables used to calculate the effect, e.g. "05-95" means taking the effect of moving from the 5 percent to the 95 percent quantile.}
 
 \item{dummy01}{shall numeric varibles that have only 0 and 1 as values be treated as a dummy variables?}
 
 \item{sort}{if TRUE (default) sort the effects by size}
 
-\item{scale.depvar}{}
+\item{scale.depvar}{a scaling for the dependent variable}
 
 \item{depvar}{name of the dependent variable}
 

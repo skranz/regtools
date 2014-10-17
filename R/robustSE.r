@@ -85,7 +85,8 @@ robust.se.summary = function(m, type = "HC3",...){
 }
 
 #' Wrapper to get robust vcov of different kinds
-#'  
+#'
+#' @param type the type of robust standard errors. Can be "HAC", "cluster", "HC1" to "HC4" or "NeweyWest"
 #' @export
 vcovRobust = function(model, type="HC3", cluster1=NULL,cluster2=NULL,...) {
   if (type=="cluster1") {
