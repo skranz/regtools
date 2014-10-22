@@ -1,27 +1,4 @@
 
-examples.effectplot = function() {
-  # simulate some data
-  set.seed(12345)
-  n = 1000
-  x = rnorm(n)
-  z = rnorm(n)
-  q = rnorm(n)
-  
-  # binary outcome
-  y = ifelse(pnorm(1 + 0.5*x + 0.25*x^2 - 0.5*z + rnorm(n))>0.5, 1, 0)
-
-  data = data.frame(y,x,z,q)
-  # Logit regression
-  reg = glm(y~x + x^2 + z +q, data=data, family="binomial")
-  effectplot(reg,data,main="Effects", horizontal=TRUE, show.ci=TRUE)
-  
-  sdata = scale.data.cols(data,"10-90")
-  sreg = glm(y~x + x^2 + z +q, data=sdata, family="binomial")
-  summary(sreg)
-  coefplot(sreg,sdata)
-
- }
-
 #' Change units of columns in a data frame, e.g. measure relative to one standard deviation
 #' 
 #' useful to make coefficients in regressions better comparable
@@ -295,6 +272,31 @@ compute.effect.size.se = function(reg, repl.for.se,newdata,scale=1, add.intercep
   
 }
 
+
+examples.effectplot = function() {
+  # simulate some data
+  set.seed(12345)
+  n = 1000
+  x = rnorm(n)
+  z = rnorm(n)
+  q = rnorm(n)
+  
+  # binary outcome
+  y = ifelse(pnorm(1 + 0.5*x + 0.25*x^2 - 0.5*z + rnorm(n))>0.5, 1, 0)
+
+  data = data.frame(y,x,z,q)
+  # Logit regression
+  reg = glm(y~x + x^2 + z +q, data=data, family="binomial")
+  effectplot(reg,data,main="Effects", horizontal=TRUE, show.ci=TRUE)
+  
+  sdata = scale.data.cols(data,"10-90")
+  sreg = glm(y~x + x^2 + z +q, data=sdata, family="binomial")
+  summary(sreg)
+  coefplot(sreg,sdata)
+
+ }
+
+
 #' Plot for regressions to compare effects sizes of normalized changes in the explanatory variables
 #' 
 #' The plot shall help to compare magnitudes of the influence of different explanatory variables. The default effect is "10-90", i.e. the effect of when -ceteris paribus- changing an (numeric) explanatory variable from its 10% quantile value to its 90% quantile. For dummy variables, we just consider the effect from changing it from 0 to 1.
@@ -309,9 +311,12 @@ compute.effect.size.se = function(reg, repl.for.se,newdata,scale=1, add.intercep
 #' @param depvar name of the dependent variable
 #' @param xlab, ylab labels
 #' @param colors colors for positive values (pos) and negative values (neg)  
-#' @param horizontal shall bars be shown horizontally
-#' @param show.ci shall confidence intervals be shown
+#' @param horizontal shall bars be shown horizontally?
+#' @param show.ci shall confidence intervals be shown?
 #' @param ci.prob left and right probability level for confidence intervals
+#' @param num.ticks the number of tick marks on the effect size axis
+#' @param add.numbers shall the effect sizes be added as numbers in the plot?
+#' @param ... further arguments passed to qplot. E.g. you can set "main" to specify a title of the plot.
 #' @export
 effectplot = function(reg, dat,
   vars=intersect(colnames(dat), names(coef(reg))),
@@ -319,7 +324,7 @@ effectplot = function(reg, dat,
   numeric.effect="10-90", dummy01=TRUE,
   sort = TRUE,
   scale.depvar=NULL, depvar = names(reg$model)[[1]],
-  xlab="Explanatory variables\n(low baseline high)", ylab=paste0("Effect on ", depvar,""), colors = c("pos" = "#11AAAA", "neg" = "#EE3355"), effect.sizes=NULL, effect.bases = NULL, horizontal=TRUE, show.ci = FALSE, ci.prob =c(0.05,0.95),...
+  xlab="Explanatory variables\n(low baseline high)", ylab=paste0("Effect on ", depvar,""), colors = c("pos" = "#11AAAA", "neg" = "#EE3355"), effect.sizes=NULL, effect.bases = NULL, horizontal=TRUE, show.ci = FALSE, ci.prob =c(0.05,0.95), num.ticks=NULL, add.numbers=TRUE, alpha = 0.8,...
 ) {
   library(ggplot2)
   
@@ -341,6 +346,8 @@ effectplot = function(reg, dat,
   # Set factor name in order to show sorted plot
   es$name = factor(es$coef.name, es$coef.name)
 
+  es$round.effect = sapply(es$effect, signif, digits=2)
+
 
   #qplot(data=es, y=abs.effect, x=name, fill=sign, geom="bar", stat="identity",xlab=xlab,ylab=ylab) +  coord_flip() +
 
@@ -349,15 +356,27 @@ effectplot = function(reg, dat,
     es$abs.ci.high = es$ci.high * es$effect.sign
   }
 
-  p = qplot(data=es, y=abs.effect, x=name, fill=sign, geom="bar", stat="identity",xlab=xlab,ylab=ylab,...) + scale_fill_manual(values=colors)
-    p = qplot(data=es, y=abs.effect, x=name, fill=sign, geom="bar", stat="identity",xlab=xlab,ylab=ylab) + scale_fill_manual(values=colors)
+  #p = qplot(data=es, y=abs.effect, x=name, fill=sign, geom="bar", stat="identity",xlab=xlab,ylab=ylab,...) + scale_fill_manual(values=colors)
+  p = qplot(data=es, y=abs.effect, x=name, fill=sign, geom="bar", stat="identity",xlab=xlab,ylab=ylab, alpha=I(alpha)) + scale_fill_manual(values=colors)
 
   if (horizontal)
     p = p+coord_flip()  #+ theme_wsj()
   
   if (show.ci) {
-    p = p +geom_errorbar(aes(ymin=abs.ci.low, ymax=abs.ci.high), position="dodge", width=0.25, colour=gray(0, alpha=0.6))
+    p = p +geom_errorbar(aes(ymin=abs.ci.low, ymax=abs.ci.high), position="dodge", width=0.25, colour=gray(0.3, alpha=0.6))
   }
+  
+  if (!is.null(num.ticks)) {
+    number_ticks <- function(n) {function(limits) pretty(limits, n)}
+    p = p + scale_y_continuous(breaks=number_ticks(num.ticks))
+  }
+  
+  if (add.numbers) { 
+    p = p + geom_text(aes(x=name, y=abs.effect, ymax=abs.effect,
+                          label=round.effect, hjust=1, vjust=0), 
+           position = position_dodge(width=1))
+  }
+  
   p
 }
 

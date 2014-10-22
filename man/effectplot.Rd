@@ -9,7 +9,8 @@ effectplot(reg, dat, vars = intersect(colnames(dat), names(coef(reg))),
   xlab = "Explanatory variables\\n(low baseline high)",
   ylab = paste0("Effect on ", depvar, ""), colors = c(pos = "#11AAAA", neg =
   "#EE3355"), effect.sizes = NULL, effect.bases = NULL, horizontal = TRUE,
-  show.ci = FALSE, ci.prob = c(0.05, 0.95), ...)
+  show.ci = FALSE, ci.prob = c(0.05, 0.95), num.ticks = NULL,
+  add.numbers = TRUE, ...)
 }
 \arguments{
 \item{reg}{the results from a regression, e.g. from a call to lm or glm}
@@ -32,11 +33,17 @@ effectplot(reg, dat, vars = intersect(colnames(dat), names(coef(reg))),
 
 \item{colors}{colors for positive values (pos) and negative values (neg)}
 
-\item{horizontal}{shall bars be shown horizontally}
+\item{horizontal}{shall bars be shown horizontally?}
 
-\item{show.ci}{shall confidence intervals be shown}
+\item{show.ci}{shall confidence intervals be shown?}
 
 \item{ci.prob}{left and right probability level for confidence intervals}
+
+\item{num.ticks}{the number of tick marks on the effect size axis}
+
+\item{add.numbers}{shall the effect sizes be added as numbers in the plot?}
+
+\item{...}{further arguments passed to qplot. E.g. you can set "main" to specify a title of the plot.}
 }
 \description{
 The plot shall help to compare magnitudes of the influence of different explanatory variables. The default effect is "10-90", i.e. the effect of when -ceteris paribus- changing an (numeric) explanatory variable from its 10% quantile value to its 90% quantile. For dummy variables, we just consider the effect from changing it from 0 to 1.
