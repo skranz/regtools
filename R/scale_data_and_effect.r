@@ -357,7 +357,7 @@ effectplot = function(reg, dat,
   }
 
   #p = qplot(data=es, y=abs.effect, x=name, fill=sign, geom="bar", stat="identity",xlab=xlab,ylab=ylab,...) + scale_fill_manual(values=colors)
-  p = qplot(data=es, y=abs.effect, x=name, fill=sign, geom="bar", stat="identity",xlab=xlab,ylab=ylab, alpha=I(alpha)) + scale_fill_manual(values=colors)
+  p = qplot(data=es, y=abs.effect, x=name, fill=sign, geom="bar", stat="identity",xlab=xlab,ylab=ylab, alpha=I(alpha),...) + scale_fill_manual(values=colors)
 
   if (horizontal)
     p = p+coord_flip()  #+ theme_wsj()
