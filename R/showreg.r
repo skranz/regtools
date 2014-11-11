@@ -12,11 +12,13 @@ examples.showreg = function() {
   iv <- ivreg(log(packs) ~ log(rprice) + log(rincome) | log(rincome) + tdiff + I(tax/cpi),data = CigarettesSW, subset = year == "1995")
   ols <- lm(log(packs) ~ log(rprice) + log(rincome),data = CigarettesSW, subset = year == "1995")
 
-  showreg(list(iv=iv,iv.rob=iv, ols=ols,  ols.rob=ols),
-          robust=c(FALSE,TRUE,FALSE,TRUE), robust.type="HC4")  
-  showreg(list(iv=iv,iv.rob=iv, ols=ols,  ols.rob=ols),
+  txt = showreg(list(iv=iv,iv.rob=iv, ols=ols,  ols.rob=ols),
+          robust=c(FALSE,TRUE,FALSE,TRUE), robust.type="HC4", output="html")  
+  showreg(list(iv=iv,iv.rob=iv, ols=ols,  ols.rob=ols), title = "My models",
           robust=c(FALSE,TRUE,FALSE,TRUE), robust.type="NeweyWest", prewhite=FALSE)  
 
+  txt = showreg(list(iv=iv,iv.rob=iv, ols=ols,  ols.rob=ols),
+          robust=c(FALSE,TRUE,FALSE,TRUE), robust.type="HC4", output="html", caption="My table", caption.above=!TRUE)  
 
   # Marginal effect for probit regression
   set.seed(12345)
@@ -62,10 +64,11 @@ examples.showreg = function() {
 #' @param coef.mat.li for highest flexibility, you can also provide a list that contains for each model a matrix or data.frame as returned by coeftest with the columns: coefficent, se, t-value, p-value.
 #' @param output either "text", "html" or "latex"
 #' @param output.fun allows a manual output function, e.g. if one has overloaded the design of screenreg, texreg or htmlreg. 
+#' @param title a string shown as title above the table
 #' @param ... additional parameters for screenreg, texreg or htmlreg
 #' 
 #' @export
-showreg = function(l,custom.model.names=names(l), robust = FALSE, robust.type = "HC3", cluster1=NULL, cluster2=NULL,vcov.li=NULL,coef.transform = NULL, coef.mat.li = NULL, digits = 2, output=c("text","html","latex"), output.fun = NULL, doctype = FALSE,...){
+showreg = function(l,custom.model.names=names(l), robust = FALSE, robust.type = "HC3", cluster1=NULL, cluster2=NULL,vcov.li=NULL,coef.transform = NULL, coef.mat.li = NULL, digits = 2, output=c("text","html","latex"), output.fun = NULL, doctype = FALSE,title=NULL, ...){
   restore.point("showreg")
 
   if (is.null(output.fun)) {
@@ -81,7 +84,9 @@ showreg = function(l,custom.model.names=names(l), robust = FALSE, robust.type = 
   }
     
   if (!any(robust) & is.null(vcov.li) & is.null(coef.mat.li) & is.null(coef.transform)) {
-    return(output.fun(l, ..., custom.model.names=custom.model.names,digits = digits, doctype=doctype))
+    res =output.fun(l, ..., custom.model.names=custom.model.names,digits = digits, doctype=doctype)
+    res = add.showreg.title(res,title,output)
+    return(res)
   }    
   
   if (length(robust)==1)
@@ -107,10 +112,27 @@ showreg = function(l,custom.model.names=names(l), robust = FALSE, robust.type = 
   pval.li = lapply(cml, function(r) convert.na(r[,4],1))
  
   
-  output.fun(l,..., custom.model.names = custom.model.names,
+  
+  res = output.fun(l,..., custom.model.names = custom.model.names,
       override.coef = coef.li, override.se = se.li,
       override.pval = pval.li,
       digits = digits,doctype=doctype)
+  
+  add.showreg.title(res,title,output)
+}
+
+
+add.showreg.title = function(out, title=NULL, output="text") {
+  if (is.null(title))
+    return(out)
+  out.class = class(out)
+  if (output=="text" | output=="latex") {
+    res = paste0(title,"\n",out)
+  } else if (output=="html") {
+    res = paste0("<H4>",title,"</H4>\n\n",out)
+  }
+  class(res) = class(out)
+  return(res)
 }
 
 #' get the matrix with coefficients, se, t-value, p-value of a regression model
