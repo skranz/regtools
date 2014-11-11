@@ -10,7 +10,7 @@ effectplot(reg, dat, vars = intersect(colnames(dat), names(coef(reg))),
   ylab = paste0("Effect on ", depvar, ""), colors = c(pos = "#11AAAA", neg =
   "#EE3355"), effect.sizes = NULL, effect.bases = NULL, horizontal = TRUE,
   show.ci = FALSE, ci.prob = c(0.05, 0.95), num.ticks = NULL,
-  add.numbers = TRUE, ...)
+  add.numbers = TRUE, alpha = 0.8, ...)
 }
 \arguments{
 \item{reg}{the results from a regression, e.g. from a call to lm or glm}

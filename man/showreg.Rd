@@ -7,7 +7,7 @@ showreg(l, custom.model.names = names(l), robust = FALSE,
   robust.type = "HC3", cluster1 = NULL, cluster2 = NULL, vcov.li = NULL,
   coef.transform = NULL, coef.mat.li = NULL, digits = 2,
   output = c("text", "html", "latex"), output.fun = NULL, doctype = FALSE,
-  ...)
+  title = NULL, ...)
 }
 \arguments{
 \item{l}{list of models as in screenreg}
@@ -30,6 +30,8 @@ showreg(l, custom.model.names = names(l), robust = FALSE,
 
 \item{output.fun}{allows a manual output function, e.g. if one has overloaded the design of screenreg, texreg or htmlreg.}
 
+\item{title}{a string shown as title above the table}
+
 \item{...}{additional parameters for screenreg, texreg or htmlreg}
 }
 \description{
@@ -49,11 +51,13 @@ The function extends and wraps the screenreg, texreg and htmlreg functions in th
   iv <- ivreg(log(packs) ~ log(rprice) + log(rincome) | log(rincome) + tdiff + I(tax/cpi),data = CigarettesSW, subset = year == "1995")
   ols <- lm(log(packs) ~ log(rprice) + log(rincome),data = CigarettesSW, subset = year == "1995")
 
-  showreg(list(iv=iv,iv.rob=iv, ols=ols,  ols.rob=ols),
-          robust=c(FALSE,TRUE,FALSE,TRUE), robust.type="HC4")  
-  showreg(list(iv=iv,iv.rob=iv, ols=ols,  ols.rob=ols),
+  txt = showreg(list(iv=iv,iv.rob=iv, ols=ols,  ols.rob=ols),
+          robust=c(FALSE,TRUE,FALSE,TRUE), robust.type="HC4", output="html")  
+  showreg(list(iv=iv,iv.rob=iv, ols=ols,  ols.rob=ols), title = "My models",
           robust=c(FALSE,TRUE,FALSE,TRUE), robust.type="NeweyWest", prewhite=FALSE)  
 
+  txt = showreg(list(iv=iv,iv.rob=iv, ols=ols,  ols.rob=ols),
+          robust=c(FALSE,TRUE,FALSE,TRUE), robust.type="HC4", output="html", caption="My table", caption.above=!TRUE)  
 
   # Marginal effect for probit regression
   set.seed(12345)
