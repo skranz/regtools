@@ -19,9 +19,9 @@ effectplot(reg, dat = get.regression.data(reg),
 \arguments{
 \item{reg}{the results from a regression, e.g. from a call to lm or glm}
 
-\item{dat}{the data frame the regression was estimated from}
+\item{dat}{default = the data frame the regression was estimated from}
 
-\item{vars}{the explanatory variables that shall be shown in the regression lplot}
+\item{vars}{the explanatory variables that shall be shown in the plot}
 
 \item{numeric.effect}{a code describing the lowest and highest values of numeric explanatory variables used to calculate the effect, e.g. "05-95" means taking the effect of moving from the 5 percent to the 95 percent quantile.}
 
@@ -79,11 +79,25 @@ The plot shall help to compare magnitudes of the influence of different explanat
   data = data.frame(y,x,z,q)
   # Logit regression
   reg = glm(y~x + x^2 + z +q, data=data, family="binomial")
-  effectplot(reg,data,main="Effects", horizontal=TRUE, show.ci=TRUE)
-  
-  sdata = scale.data.cols(data,"10-90")
-  sreg = glm(y~x + x^2 + z +q, data=sdata, family="binomial")
-  summary(sreg)
-  coefplot(sreg,sdata)
+  effectplot(reg,main="Effects", horizontal=TRUE, show.ci=TRUE)
 
+
+  # An example with factors
+  
+  T = 10
+  x = sample(1:4, T, replace = TRUE)
+  y = x^2 + rnorm(T)
+  xf = factor(x)
+
+  # effectplot can currently not handle factor variables
+  # in the regression formula
+  effectplot(lm(y~xf))
+  
+  # Workaround: first explicitly generate a 
+  # data.frame with all dummy variables
+  dat = regression.data(y~xf)
+  reg = lm(regression.formula(dat), data=dat)
+  reg
+  effectplot(reg)
+   
 }}

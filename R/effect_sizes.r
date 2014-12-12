@@ -287,14 +287,28 @@ examples.effectplot = function() {
   data = data.frame(y,x,z,q)
   # Logit regression
   reg = glm(y~x + x^2 + z +q, data=data, family="binomial")
-  effectplot(reg,data,main="Effects", horizontal=TRUE, show.ci=TRUE)
-  
-  sdata = scale.data.cols(data,"10-90")
-  sreg = glm(y~x + x^2 + z +q, data=sdata, family="binomial")
-  summary(sreg)
-  coefplot(sreg,sdata)
+  effectplot(reg,main="Effects", horizontal=TRUE, show.ci=TRUE)
 
- }
+
+  # An example with factors
+  
+  T = 10
+  x = sample(1:4, T, replace = TRUE)
+  y = x^2 + rnorm(T)
+  xf = factor(x)
+
+  # effectplot can currently not handle factor variables
+  # in the regression formula
+  effectplot(lm(y~xf))
+  
+  # Workaround: first explicitly generate a 
+  # data.frame with all dummy variables
+  dat = regression.data(y~xf)
+  reg = lm(regression.formula(dat), data=dat)
+  reg
+  effectplot(reg)
+   
+}
 
 
 #' Plot for regressions to compare effects sizes of normalized changes in the explanatory variables
@@ -302,8 +316,8 @@ examples.effectplot = function() {
 #' The plot shall help to compare magnitudes of the influence of different explanatory variables. The default effect is "10-90", i.e. the effect of when -ceteris paribus- changing an (numeric) explanatory variable from its 10% quantile value to its 90% quantile. For dummy variables, we just consider the effect from changing it from 0 to 1.
 #' 
 #' @param reg the results from a regression, e.g. from a call to lm or glm
-#' @param dat the data frame the regression was estimated from
-#' @param vars the explanatory variables that shall be shown in the regression lplot
+#' @param dat default = the data frame the regression was estimated from
+#' @param vars the explanatory variables that shall be shown in the plot
 #' @param numeric.effect a code describing the lowest and highest values of numeric explanatory variables used to calculate the effect, e.g. "05-95" means taking the effect of moving from the 5 percent to the 95 percent quantile.
 #' @param dummy01 shall numeric varibles that have only 0 and 1 as values be treated as a dummy variables?
 #' @param sort if TRUE (default) sort the effects by size
@@ -343,16 +357,37 @@ effectplot = function(reg, dat=get.regression.data(reg),
   alpha = 0.8,...
 ) {
   library(ggplot2)
+
+# 
+#   org.dat = dat
+#   
+#   if (missing(model.matrix)) {
+#     model.matrix = dat
+#     try({
+#       model.matrix <- model.matrix(reg)
+#       if (all(model.matrix[,1]==1))
+#         model.matrix <- model.matrix[,-1, drop=FALSE]
+#       },silent=TRUE)
+#   }
+#   if (!is.null(model.matrix)) {
+#     dat = cbind(dat[[depvar]],as.data.frame(model.matrix))
+#     colnames(dat)[1] = depvar
+#   }
+#   rownames(dat) = NULL
+#   if (missing(vars))
+#     vars = colnames(dat)
   
-  vars = setdiff(vars, ignore.vars)
-  
+  restore.point("effectplot")
+
+  vars = setdiff(vars, ignore.vars)  
   if (is.null(effect.sizes)) {
     es = get.effect.sizes(reg,dat, vars,depvar=depvar, scale.depvar=scale.depvar,numeric.effect=numeric.effect, dummy01=dummy01, effect.bases=effect.bases, compute.se=show.ci, ci.prob=ci.prob)
   } else {
     es = effect.sizes
   }
   
-  restore.point("effectplot")
+  
+  
   
   es$coef.name = paste0(es$var,"\n",es$base.descr)
   if (sort)
