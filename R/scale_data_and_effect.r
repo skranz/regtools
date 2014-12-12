@@ -316,15 +316,31 @@ examples.effectplot = function() {
 #' @param ci.prob left and right probability level for confidence intervals
 #' @param num.ticks the number of tick marks on the effect size axis
 #' @param add.numbers shall the effect sizes be added as numbers in the plot?
+#' @param numbers.align How shall the effect size numbers be aligned: "left","center", "right" align all numbers at the same horizontal posistion for all variables. "left_of_bar_end" and "right_of_bar_end" align them at the end of each bar.
+#' @param numbers.vjust Vertical adjustment of the numbers
+#' @param left.margin extra margin left of bars as fraction of maximum bar width
+#' @param right.margin extra margin right of bars as fraction of maximum bar width
+#' @param signif.digits number of significant digits for effect sizes
+#' @param round.digits number of digits effect sizes shall be rounded to
 #' @param ... further arguments passed to qplot. E.g. you can set "main" to specify a title of the plot.
 #' @export
-effectplot = function(reg, dat,
+effectplot = function(reg, dat=get.regression.data(reg),
   vars=intersect(colnames(dat), names(coef(reg))),
   ignore.vars = NULL,
   numeric.effect="10-90", dummy01=TRUE,
   sort = TRUE,
   scale.depvar=NULL, depvar = names(reg$model)[[1]],
-  xlab="Explanatory variables\n(low baseline high)", ylab=paste0("Effect on ", depvar,""), colors = c("pos" = "#11AAAA", "neg" = "#EE3355"), effect.sizes=NULL, effect.bases = NULL, horizontal=TRUE, show.ci = FALSE, ci.prob =c(0.05,0.95), num.ticks=NULL, add.numbers=TRUE, alpha = 0.8,...
+  xlab="Explanatory variables\n(low baseline high)",
+  ylab=paste0("Effect on ", depvar,""),
+  colors = c("pos" = "#11AAAA", "neg" = "#EE3355"),
+  effect.sizes=NULL, effect.bases = NULL, horizontal=TRUE,
+  show.ci = FALSE, ci.prob =c(0.05,0.95), num.ticks=NULL, 
+  add.numbers=TRUE, 
+  numbers.align = c("center","left","right","left_of_bar_end","right_of_bar_end")[1],
+  numbers.vjust = ifelse(show.ci,0,0.5),
+  left.margin = 0, right.margin=0,
+  signif.digits = 2, round.digits=8, 
+  alpha = 0.8,...
 ) {
   library(ggplot2)
   
@@ -346,8 +362,13 @@ effectplot = function(reg, dat,
   # Set factor name in order to show sorted plot
   es$name = factor(es$coef.name, es$coef.name)
 
-  es$round.effect = sapply(es$effect, signif, digits=2)
+  es$round.effect = round(es$effect,round.digits)
+  es$round.effect = sapply(es$round.effect, signif, digits=signif.digits)
 
+  add.str = ifelse(es$round.effect>=0, " ","")
+  es$round.effect = paste0(add.str,es$round.effect)
+  
+  
 
   #qplot(data=es, y=abs.effect, x=name, fill=sign, geom="bar", stat="identity",xlab=xlab,ylab=ylab) +  coord_flip() +
 
@@ -371,12 +392,35 @@ effectplot = function(reg, dat,
     p = p + scale_y_continuous(breaks=number_ticks(num.ticks))
   }
   
-  if (add.numbers) { 
-    p = p + geom_text(aes(x=name, y=abs.effect, ymax=abs.effect,
-                          label=round.effect, hjust=1, vjust=0), 
-           position = position_dodge(width=1))
+  if (add.numbers) {
+    if (numbers.align=="left_of_bar_end") {
+      p = p + geom_text(aes(x=name, y=abs.effect,
+          ymax=max(abs.effect)*(1+right.margin), ymin=-(left.margin*max(abs.effect)),
+          label=round.effect, hjust=1, vjust=numbers.vjust), 
+          position = position_dodge(width=1))     
+    } else if (numbers.align=="right_of_bar_end") {
+       p = p + geom_text(aes(x=name, y=abs.effect,
+          ymax=max(abs.effect)*(1+right.margin), ymin=-(left.margin*max(abs.effect)),
+          label=round.effect, hjust=0,vjust=numbers.vjust))          
+    } else {
+      .POS = 0.5
+      if (numbers.align == "left") {
+        .POS = 0
+      } else if (numbers.align=="center") {
+        .POS = 0.5
+      } else if (numbers.align=="right") {
+        .POS = 1
+      } else if (is.numeric(numbers.align)) {
+        .POS = numbers.align
+      }
+      p = p + geom_text(aes(x = name, y = .POS*max(abs.effect),
+                            ymax=max(abs.effect)*(1+right.margin),
+                            ymin=-(left.margin*max(abs.effect)),
+                            label=round.effect, hjust=0,vjust=numbers.vjust))
+    }
   }
-  
+  #numbers.align = "left_of_bar_end","right_of_bar_end","center","left","right"  
+
   p
 }
 

@@ -3,14 +3,18 @@
 \alias{effectplot}
 \title{Plot for regressions to compare effects sizes of normalized changes in the explanatory variables}
 \usage{
-effectplot(reg, dat, vars = intersect(colnames(dat), names(coef(reg))),
-  ignore.vars = NULL, numeric.effect = "10-90", dummy01 = TRUE,
-  sort = TRUE, scale.depvar = NULL, depvar = names(reg$model)[[1]],
+effectplot(reg, dat = get.regression.data(reg),
+  vars = intersect(colnames(dat), names(coef(reg))), ignore.vars = NULL,
+  numeric.effect = "10-90", dummy01 = TRUE, sort = TRUE,
+  scale.depvar = NULL, depvar = names(reg$model)[[1]],
   xlab = "Explanatory variables\\n(low baseline high)",
   ylab = paste0("Effect on ", depvar, ""), colors = c(pos = "#11AAAA", neg =
   "#EE3355"), effect.sizes = NULL, effect.bases = NULL, horizontal = TRUE,
   show.ci = FALSE, ci.prob = c(0.05, 0.95), num.ticks = NULL,
-  add.numbers = TRUE, alpha = 0.8, ...)
+  add.numbers = TRUE, numbers.align = c("center", "left", "right",
+  "left_of_bar_end", "right_of_bar_end")[1], numbers.vjust = ifelse(show.ci,
+  0, 0.5), left.margin = 0, right.margin = 0, signif.digits = 2,
+  round.digits = 8, alpha = 0.8, ...)
 }
 \arguments{
 \item{reg}{the results from a regression, e.g. from a call to lm or glm}
@@ -42,6 +46,18 @@ effectplot(reg, dat, vars = intersect(colnames(dat), names(coef(reg))),
 \item{num.ticks}{the number of tick marks on the effect size axis}
 
 \item{add.numbers}{shall the effect sizes be added as numbers in the plot?}
+
+\item{numbers.align}{How shall the effect size numbers be aligned: "left","center", "right" align all numbers at the same horizontal posistion for all variables. "left_of_bar_end" and "right_of_bar_end" align them at the end of each bar.}
+
+\item{numbers.vjust}{Vertical adjustment of the numbers}
+
+\item{left.margin}{extra margin left of bars as fraction of maximum bar width}
+
+\item{right.margin}{extra margin right of bars as fraction of maximum bar width}
+
+\item{signif.digits}{number of significant digits for effect sizes}
+
+\item{round.digits}{number of digits effect sizes shall be rounded to}
 
 \item{...}{further arguments passed to qplot. E.g. you can set "main" to specify a title of the plot.}
 }
