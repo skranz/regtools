@@ -7,5 +7,5 @@ Author: Sebastian Kranz
 Maintainer: Sebastian Kranz <sebastian.kranz@uni-ulm.de>
 Description: Mainly, shall make it easier to present regression results like in economics articles. E.g. easy inclusion of robust standard errors and marginal effects. Consists mostly of wrapper and glue functions to texreg, sandwich, mfx etc. Not yet thoroghly tested.
 License: GPL>=2.0
-Depends: restorepoint, texreg, sandwich, mvtnorm
-Imports: mfx, ggplot2, tidyr
+Depends: restorepoint, sandwich, mvtnorm, dplyr
+Imports: mfx, ggplot2, tidyr, texreg, stargazer

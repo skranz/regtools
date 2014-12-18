@@ -12,10 +12,15 @@ examples.showreg = function() {
   iv <- ivreg(log(packs) ~ log(rprice) + log(rincome) | log(rincome) + tdiff + I(tax/cpi),data = CigarettesSW, subset = year == "1995")
   ols <- lm(log(packs) ~ log(rprice) + log(rincome),data = CigarettesSW, subset = year == "1995")
 
+  showreg(list(iv,ols), package="texreg")
+  showreg(list(iv,ols), package="stargazer")
+  
   txt = showreg(list(iv=iv,iv.rob=iv, ols=ols,  ols.rob=ols),
-          robust=c(FALSE,TRUE,FALSE,TRUE), robust.type="HC4", output="html")  
+          robust=c(FALSE,TRUE,FALSE,TRUE), robust.type="HC4", output="text", package="stargazer")
+  
+  txt
   showreg(list(iv=iv,iv.rob=iv, ols=ols,  ols.rob=ols), title = "My models",
-          robust=c(FALSE,TRUE,FALSE,TRUE), robust.type="NeweyWest", prewhite=FALSE)  
+          robust=c(FALSE,TRUE,FALSE,TRUE), robust.type="NeweyWest")  
 
   txt = showreg(list(iv=iv,iv.rob=iv, ols=ols,  ols.rob=ols),
           robust=c(FALSE,TRUE,FALSE,TRUE), robust.type="HC4", output="html", caption="My table", caption.above=!TRUE)  
@@ -50,9 +55,12 @@ examples.showreg = function() {
 
 }
 
+
+
+
 #' Show and compare regression results
 #' 
-#' The function extends and wraps the screenreg, texreg and htmlreg functions in the texreg package. It allows for robust standard errors (also clustered robust standard errors) and can show marginal effects in glm models.
+#' The function extends and wraps either stargazer or the screenreg, texreg and htmlreg functions in the texreg package. It allows for robust standard errors (also clustered robust standard errors) and can show marginal effects in glm models.
 #' 
 #' @param l list of models as in screenreg
 #' @param custom.model.names custom titles for each model. By default the names of the model list.
@@ -65,26 +73,49 @@ examples.showreg = function() {
 #' @param output either "text", "html" or "latex"
 #' @param output.fun allows a manual output function, e.g. if one has overloaded the design of screenreg, texreg or htmlreg. 
 #' @param title a string shown as title above the table
-#' @param ... additional parameters for screenreg, texreg or htmlreg
+#' @param package the underlying package for creating the tables, either "texreg" or "stargazer". The current default is texreg but that may change. 
+#' @param ... additional parameters for stargazer or screenreg, texreg or htmlreg
 #' 
 #' @export
-showreg = function(l,custom.model.names=names(l), robust = FALSE, robust.type = "HC3", cluster1=NULL, cluster2=NULL,vcov.li=NULL,coef.transform = NULL, coef.mat.li = NULL, digits = 2, output=c("text","html","latex"), output.fun = NULL, doctype = FALSE,title=NULL, ...){
+showreg = function(l,custom.model.names=names(l), omit.stat=c("F","ser"),robust = FALSE, robust.type = "HC3", cluster1=NULL, cluster2=NULL,vcov.li=NULL,coef.transform = NULL, coef.mat.li = NULL, digits = 2, output=c("text","html","latex")[1], output.fun = NULL, doctype = FALSE,title=NULL, intercept.bottom=FALSE, package=c("texreg","stargazer")[1], ...){
+  
+  dots = list(...)
   restore.point("showreg")
 
+  if (!is.null(dots$type)) output=type
+  
+  if (package=="stargazer") {
+    library(stargazer)
+    call.stargazer = function(args) {
+      dupl = duplicated(names(args)) & names(args)!=""
+      args = args[!dupl]
+      
+      out = capture.output(res<-do.call("stargazer",args))
+      class(res) = c("classShowReg","character")
+      res
+    }
+  }    
   if (is.null(output.fun)) {
-    output = output[1]
-    library(texreg)
-    if (output=="text"){
-      output.fun=screenreg
-    } else if (output=="html") {
-      output.fun = htmlreg
-    } else if (output=="latex") {
-      output.fun = texreg
+    if (package=="texreg") {
+      library(texreg)
+      if (type=="text"){
+        output.fun=screenreg
+      } else if (type=="html") {
+        output.fun = htmlreg
+      } else if (type=="latex") {
+        output.fun = texreg
+      }
     }
   }
     
   if (!any(robust) & is.null(vcov.li) & is.null(coef.mat.li) & is.null(coef.transform)) {
-    res =output.fun(l, ..., custom.model.names=custom.model.names,digits = digits, doctype=doctype)
+    if (package=="stargazer" & is.null(output.fun)) {
+      args = c(l, dots,list(type=type, digits=digits,
+        omit.stat=omit.stat,intercept.bottom=intercept.bottom))
+      res = call.stargazer(args)  
+    } else {
+      res =output.fun(l, ..., custom.model.names=custom.model.names,digits = digits, doctype=doctype)
+    }
     res = add.showreg.title(res,title,output)
     return(res)
   }    
@@ -112,15 +143,26 @@ showreg = function(l,custom.model.names=names(l), robust = FALSE, robust.type = 
   pval.li = lapply(cml, function(r) convert.na(r[,4],1))
  
   
-  
-  res = output.fun(l,..., custom.model.names = custom.model.names,
+  if (package=="stargazer" & is.null(output.fun)) {
+    #restore.point("showreg.stargazer")
+    names(l)=NULL    
+    args = c(l, dots,list(type=type, digits=digits,
+        omit.stat=omit.stat,intercept.bottom=intercept.bottom,
+        coef = coef.li, se=se.li, p=pval.li))
+    res = call.stargazer(args)  
+  } else {
+    res = output.fun(l,..., custom.model.names = custom.model.names,
       override.coef = coef.li, override.se = se.li,
       override.pval = pval.li,
       digits = digits,doctype=doctype)
-  
+  }
+
   add.showreg.title(res,title,output)
 }
 
+print.classShowReg = function(x) {
+  cat("\n", paste0(x,collapse="\n"))
+}
 
 add.showreg.title = function(out, title=NULL, output="text") {
   if (is.null(title))
