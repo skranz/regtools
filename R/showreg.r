@@ -82,7 +82,8 @@ showreg = function(l,custom.model.names=names(l), omit.stat=c("F","ser"),robust 
   dots = list(...)
   restore.point("showreg")
 
-  if (!is.null(dots$type)) output=type
+  if (!is.null(dots$type)) output=dots$type
+  type = output
   
   if (package=="stargazer") {
     library(stargazer)
@@ -98,11 +99,11 @@ showreg = function(l,custom.model.names=names(l), omit.stat=c("F","ser"),robust 
   if (is.null(output.fun)) {
     if (package=="texreg") {
       library(texreg)
-      if (type=="text"){
+      if (output=="text"){
         output.fun=screenreg
-      } else if (type=="html") {
+      } else if (output=="html") {
         output.fun = htmlreg
-      } else if (type=="latex") {
+      } else if (output=="latex") {
         output.fun = texreg
       }
     }
@@ -110,7 +111,7 @@ showreg = function(l,custom.model.names=names(l), omit.stat=c("F","ser"),robust 
     
   if (!any(robust) & is.null(vcov.li) & is.null(coef.mat.li) & is.null(coef.transform)) {
     if (package=="stargazer" & is.null(output.fun)) {
-      args = c(l, dots,list(type=type, digits=digits,
+      args = c(l, dots,list(type=output, digits=digits,
         omit.stat=omit.stat,intercept.bottom=intercept.bottom))
       res = call.stargazer(args)  
     } else {
