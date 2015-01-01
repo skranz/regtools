@@ -56,7 +56,7 @@ vcovClusterTwoWays <- function(fm, cluster1, cluster2, dfcw=1){
    cluster2 = get.regression.var(fm, cluster2)
 
    
-   cluster12 = paste(cluster1,cluster2, sep="_§_")
+   cluster12 = paste(cluster1,cluster2, sep="_%&%_")
    M1  <- length(unique(cluster1))
    M2  <- length(unique(cluster2))   
    M12 <- length(unique(cluster12))
