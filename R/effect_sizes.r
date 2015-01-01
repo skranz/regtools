@@ -295,19 +295,24 @@ examples.effectplot = function() {
   T = 10
   x = sample(1:4, T, replace = TRUE)
   y = x^2 + rnorm(T)
-  xf = factor(x)
+  xf = as.character(x)
 
   # effectplot can currently not handle factor variables
   # in the regression formula
-  effectplot(lm(y~xf))
+  reg = lm(y~xf)
+  effectplot(reg)
   
   # Workaround: first explicitly generate a 
   # data.frame with all dummy variables
-  dat = regression.data(y~xf)
+  dat = expanded.regression.data(y~xf)
   reg = lm(regression.formula(dat), data=dat)
   reg
   effectplot(reg)
-   
+
+  # Short-cut
+  reg = expanded.regression(lm(y~xf))
+  effectplot(reg)
+  
 }
 
 
