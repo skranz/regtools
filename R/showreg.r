@@ -1,7 +1,8 @@
 
 examples.showreg = function() {
-  
+  library(regtools)
 
+  getOption("showreg.package")
   # iv and ols with robust standard errors
   library(AER)
   data("CigarettesSW", package = "AER")
@@ -77,7 +78,8 @@ examples.showreg = function() {
 #' @param ... additional parameters for stargazer or screenreg, texreg or htmlreg
 #' 
 #' @export
-showreg = function(l,custom.model.names=names(l), omit.stat=c("F","ser"),robust = FALSE, robust.type = "HC3", cluster1=NULL, cluster2=NULL,vcov.li=NULL,coef.transform = NULL, coef.mat.li = NULL, digits = 2, output=c("text","html","latex")[1], output.fun = NULL, doctype = FALSE,title=NULL, intercept.bottom=FALSE, package=c("texreg","stargazer")[1], ...){
+showreg = function(l,custom.model.names=names(l), omit.stat=c("F","ser"),robust = FALSE, robust.type = "HC3", cluster1=NULL, cluster2=NULL,vcov.li=NULL,coef.transform = NULL, coef.mat.li = NULL, digits = 2, output=c("text","html","latex")[1], output.fun = NULL, doctype = FALSE,title=NULL, intercept.bottom=FALSE, package=getOption("showreg.package")[1]
+, ...){
   
   dots = list(...)
   restore.point("showreg")
