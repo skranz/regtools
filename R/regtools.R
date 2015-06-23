@@ -21,6 +21,13 @@ formula.dep.var = function(formula) {
   all.vars(formula[[2]])
 }
 
+#' Returns the name of the dependent variable of a model object
+#' @export
+model.dep.var = function(mod) {
+  if (is(mod,"felm")) return(mod$lhs)
+  all.vars(formula(mod)[[2]])
+}
+
 #' Creates a data.frame that can be used to run a regression with the given formula
 #' 
 #' @param formula a regression formula e.g. y~log(x1)+x2
@@ -32,15 +39,36 @@ formula.dep.var = function(formula) {
 #' 
 #' @return a data.frame
 #' @export
-regression.data = function(formula=formula(reg), reg=NULL, data=parent.frame(), normalize.names=TRUE, remove.intercept=TRUE, expand=FALSE) {
-  if (expand) {
-    return(expanded.regression.data(formula,reg,data,normalize.names, remove.intercept))
-  }  
-  dep.var = data[[formula.dep.var(formula)]]
-  dat = cbind(dep.var,model.frame(formula,data=data))
-  if (normalize.names)
+regression.data = function(formula=stats::formula(reg), reg=NULL, data=parent.frame(), normalize.names=TRUE, remove.intercept=TRUE, expand=FALSE) {
+  #restore.point("regression.data", exclude="reg")
+  if (!is.null(reg)) {
+    dv = model.dep.var(reg)
+  } else {
+    dv = formula.dep.var(formula)
+  }
+  dep.var = data[dv]
+  #browser()
+  # remove NA from depvar
+  rownames(data) = seq_along(data[[1]])
+  if (!expand) {
+    mf = model.frame(formula,data=data)
+  } else {
+    # all factors are expanded
+    mf = as.data.frame(model.matrix(formula,data))
+    if (remove.intercept) {
+      mf = mf[,-1]
+    }
+  }
+  if (NROW(mf) != NROW(dep.var)) {
+    rows = as.integer(rownames(mf))
+    dep.var = dep.var[rows,]
+  }
+  
+  dat = cbind(dep.var,mf)
+  if (normalize.names) {
     names = normalize.column.names(colnames(dat))
-  colnames(dat)=names
+    colnames(dat)=names
+  }
   dat  
 } 
 
@@ -54,17 +82,8 @@ regression.data = function(formula=formula(reg), reg=NULL, data=parent.frame(), 
 #' 
 #' @return a data.frame
 #' @export
-expanded.regression.data = function(formula, data=parent.frame(), normalize.names=TRUE, remove.intercept=TRUE) {
-  dep.var = data[[formula.dep.var(formula)]]
-  dat = cbind(dep.var, as.data.frame(model.matrix(formula,data)))
-  if (remove.intercept) {
-    if (all(dat[,2]==1))
-      dat = dat[,-2]
-  }
-  if (normalize.names)
-    names = normalize.column.names(colnames(dat))
-  colnames(dat)=names
-  dat  
+expanded.regression.data = function(formula, data=parent.frame(), normalize.names=TRUE, remove.intercept=TRUE,...) {
+  regression.data(formula=formula,data=data,normalize.names=normalize.names, remove.intercept = remove.intercept, expand=TRUE,...)
 } 
 
 #' generates a regression formula from a data.frame assuming the first column is regressed on all other columns
@@ -117,16 +136,28 @@ expanded.regression = function(reg, org.formula=formula(reg), org.data=get.regre
 #' First looks whether the model mod has a field 'custom.data' in which a user can manually store the data.frame. 
 #' 
 #' @export
-get.regression.data = function(mod) {
+get.regression.data = function(mod, source.data=NULL,...) {
   restore.point("get.regression.data")
 
-  if (!is.null(mod$custom.data))
+  if (!is.null(source.data)) {
+    res = regression.data(reg=mod,data = source.data,normalize.names = FALSE)
+    return(res)
+  }
+
+  
+  if (!is.null(mod[["custom.data"]]))
     return(mod$custom.data)
   
-  if (!is.null(mod$data))
+  if (!is.null(mod[["data"]]))
     return(mod$data)
+  
+  
   # Model frame
-  return(mod$model)
+  if (!is.null(mod[["model"]]))
+    return(mod[["model"]])
+  
+  warning("Could not retrieve regression data.")
+  return(NULL)
 }
 
 #' Extract values of the variable var from a regression model mod

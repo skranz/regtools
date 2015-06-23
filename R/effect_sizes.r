@@ -203,7 +203,11 @@ get.effect.sizes = function(reg, dat,
     df = data.fun(df)
   }
   
-  pred = predict(reg,newdata=newdata, type=predict.type)
+  if (is(reg,"felm")) {
+    pred = predict.felm(reg,newdata=newdata, use.fe = FALSE)
+  } else {
+    pred = predict(reg,newdata=newdata, type=predict.type)
+  }
   scale.y  =1
   if (!is.null(scale.depvar)) {
     scale.y = make.val.unit(dat[[depvar]], scale.depvar)$size
@@ -343,7 +347,7 @@ examples.effectplot = function() {
 #' @param round.digits number of digits effect sizes shall be rounded to
 #' @param ... further arguments passed to qplot. E.g. you can set "main" to specify a title of the plot.
 #' @export
-effectplot = function(reg, dat=get.regression.data(reg),
+effectplot = function(reg, dat=get.regression.data(reg,source.data=source.data),source.data = NULL,
   vars=intersect(colnames(dat), names(coef(reg))),
   ignore.vars = NULL,
   numeric.effect="10-90", dummy01=TRUE,
