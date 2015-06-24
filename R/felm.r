@@ -17,7 +17,7 @@ predict.felm = function(object, newdata, use.fe = TRUE,...) {
   y.pred = mm %*% co
   
   fe.vars = names(object$fe)
-  if (use.fe & length(fe.var)>0) {
+  if (use.fe & length(fe.vars)>0) {
     if (!all(fe.vars %in% colnames(mm))) {
       missing = setdiff(fe.vars, colnames(mm))
       warning("Cannot use fixed effects for ", paste0(missing, collapse=", "), " in prediction since no data is given.")
