@@ -39,17 +39,20 @@ model.dep.var = function(mod) {
 #' 
 #' @return a data.frame
 #' @export
-regression.data = function(formula=stats::formula(reg), reg=NULL, data=parent.frame(), normalize.names=TRUE, remove.intercept=TRUE, expand=FALSE) {
-  #restore.point("regression.data", exclude="reg")
+regression.data = function(formula=stats::formula(reg), reg=NULL, data=NULL, normalize.names=TRUE, remove.intercept=TRUE, expand=FALSE) {
+  restore.point("regression.data")
+  if (is.null(reg) & is.null(data))
+    return(NULL)
+  
   if (!is.null(reg)) {
     dv = model.dep.var(reg)
   } else {
     dv = formula.dep.var(formula)
   }
-  dep.var = data[dv]
+  dep.var = data[[dv]]
   #browser()
   # remove NA from depvar
-  rownames(data) = seq_along(data[[1]])
+  rownames(data) = dep.var
   if (!expand) {
     mf = model.frame(formula,data=data)
   } else {

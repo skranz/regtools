@@ -308,7 +308,8 @@ examples.effectplot = function() {
   
   # Workaround: first explicitly generate a 
   # data.frame with all dummy variables
-  dat = expanded.regression.data(y~xf)
+  df = data.frame(y,xf,x)
+  dat = expanded.regression.data(y~xf,df)
   reg = lm(regression.formula(dat), data=dat)
   reg
   effectplot(reg)
@@ -347,7 +348,7 @@ examples.effectplot = function() {
 #' @param round.digits number of digits effect sizes shall be rounded to
 #' @param ... further arguments passed to qplot. E.g. you can set "main" to specify a title of the plot.
 #' @export
-effectplot = function(reg, dat=get.regression.data(reg,source.data=source.data),source.data = NULL,
+effectplot = function(reg, dat=get.regression.data(reg,source.data=source.data),source.data = NULL, main = NULL,
   vars=intersect(colnames(dat), names(coef(reg))),
   ignore.vars = NULL,
   numeric.effect="10-90", dummy01=TRUE,
@@ -422,8 +423,14 @@ effectplot = function(reg, dat=get.regression.data(reg,source.data=source.data),
   }
 
   #p = qplot(data=es, y=abs.effect, x=name, fill=sign, geom="bar", stat="identity",xlab=xlab,ylab=ylab,...) + scale_fill_manual(values=colors)
-  p = qplot(data=es, y=abs.effect, x=name, fill=sign, geom="bar", stat="identity",xlab=xlab,ylab=ylab, alpha=I(alpha),...) + scale_fill_manual(values=colors)
+  p = ggplot(data=es, aes(y=abs.effect, x=name, fill=sign)) +
+    geom_bar(stat = "identity", alpha=alpha) +
+    scale_fill_manual(values=colors) +
+    xlab(xlab) + ylab(ylab)
 
+  if (!is.null(main))
+    p = p + ggtitle(main)
+  
   if (horizontal)
     p = p+coord_flip()  #+ theme_wsj()
   
