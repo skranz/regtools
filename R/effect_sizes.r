@@ -293,6 +293,8 @@ examples.effectplot = function() {
   reg = glm(y~x + x^2 + z +q, data=data, family="binomial")
   effectplot(reg,main="Effects", horizontal=TRUE, show.ci=TRUE)
 
+  coefplot(reg)
+
 
   # An example with factors
   
@@ -313,7 +315,6 @@ examples.effectplot = function() {
   reg = lm(regression.formula(dat), data=dat)
   reg
   effectplot(reg)
-
   # Short-cut
   reg = expanded.regression(lm(y~xf))
   effectplot(reg)
@@ -479,14 +480,20 @@ effectplot = function(reg, dat=get.regression.data(reg,source.data=source.data),
 #' 
 #' mainly useful if regression is run on data that has been normalized by set.data.units
 #' @export
-coefplot = function(reg,data=NULL, sort=TRUE, remove.intercept=TRUE, show.units=!is.null(data)) {
+coefplot = function(reg,data=NULL, sort=TRUE, remove.intercept=TRUE, show.units=!is.null(data),   xlab="Explanatory variables",  ylab=paste0("Coefficient"),
+  colors = c("pos" = "#11AAAA", "neg" = "#EE3355"), horizontal=TRUE,  vars=names(coef(reg)),ignore.vars = NULL) {
+  restore.point("coefplot")
+  
   library(ggplot2)
   
   restore.point("coef.plot")
   coef = coef(reg)
+  
+  
   if (remove.intercept)
     coef = coef[-1]
-  
+  vars = setdiff(vars, ignore.vars)
+  coef = coef[names(coef) %in% vars]
  
   df = data.frame(coef.name=names(coef),coef=coef, abs.coef = abs(coef), sign=ifelse(sign(coef)>=0,"pos","neg"), stringsAsFactors=FALSE)
   
@@ -507,6 +514,15 @@ coefplot = function(reg,data=NULL, sort=TRUE, remove.intercept=TRUE, show.units=
   # Set factor name in order to show sorted plot
   df$name = factor(df$coef.name, df$coef.name)
 
-  qplot(data=df, y=abs.coef, x=name, fill=sign, geom="bar", stat="identity") +  coord_flip() #+ theme_wsj()
+  alpha = 1
+  p = ggplot(data=df, aes(y=abs.coef, x=name, fill=sign)) +
+    geom_bar(stat = "identity", alpha=alpha) +
+    scale_fill_manual(values=colors) +
+    xlab(xlab) + ylab(ylab)
+  
+  if (horizontal)
+    p = p+coord_flip()  #+ theme_wsj()
+
+  p
 }
 
