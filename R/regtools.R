@@ -133,6 +133,12 @@ expanded.regression = function(reg, org.formula=formula(reg), org.data=get.regre
   eval(call,env)
 }
 
+#' Try to extract name of the dependent variable from a regression model
+#' @export
+name.of.depvar = function(reg) {
+  if (is(reg,"felm")) return(reg$lhs)
+  names(reg$model)[[1]]
+}
 
 #' Extract data from a regression model
 #' 
@@ -147,6 +153,10 @@ get.regression.data = function(mod, source.data=NULL,...) {
     return(res)
   }
 
+  if (is(mod,"felm")) {
+    dat = as.data.frame(cbind(mod$response, mod$X))
+    return(dat)
+  }
   
   if (!is.null(mod[["custom.data"]]))
     return(mod$custom.data)

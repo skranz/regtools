@@ -5,7 +5,10 @@
 \title{Graphically compare sizes of regression coefficient}
 \usage{
 coefplot(reg, data = NULL, sort = TRUE, remove.intercept = TRUE,
-  show.units = !is.null(data))
+  show.units = !is.null(data), xlab = "Explanatory variables",
+  ylab = paste0("Coefficient"), colors = c(pos = "#11AAAA", neg =
+  "#EE3355"), horizontal = TRUE, vars = names(coef(reg)),
+  ignore.vars = NULL)
 }
 \description{
 mainly useful if regression is run on data that has been normalized by set.data.units

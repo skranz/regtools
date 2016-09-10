@@ -4,7 +4,7 @@
 \alias{formula.dep.var}
 \title{Returns the dependent variable of a formula object}
 \usage{
-formula.dep.var(formula)
+\method{formula}{dep.var}(formula)
 }
 \description{
 Returns the dependent variable of a formula object

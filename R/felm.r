@@ -1,5 +1,25 @@
+examples.predict.felm = function() {
+  T = 12
+  x <- rnorm(T)
+  fe1 = sample(c("yes","no"), T, replace=TRUE)
+  fe2 = sample(c("a","b","c"), T, replace=TRUE)
+  y <- x1  + (fe1=="yes") + 2*(fe2=="a") + (fe2=="b")+ rnorm(T)
+  
+  new <- data.frame(
+    x = seq(-3, 3, length=T), 
+    fe1 = sample(c("yes","no"), T, replace=TRUE),
+    fe2 = sample(c("a","b","c"), T, replace=TRUE)    
+  )
+  p.lm = predict(lm(y ~ x+fe1+fe2), new)
+
+  library(lfe)  
+  p.felm = predict(felm(y~x|fe1+fe2),new)
+  cbind(p.lm, p.felm)
+}
+
+#' An implementaion of predict for felm
 predict.felm = function(object, newdata, use.fe = TRUE,...) {
-  restore.point("predict.felm")  
+  restore.point("predict.felm")
   co = coef(object)
   
   rownames(newdata) = seq_along(newdata[,1])
@@ -12,18 +32,12 @@ predict.felm = function(object, newdata, use.fe = TRUE,...) {
   
   # remove intercept
   if (NCOL(mm)==length(co)+1) {
-    mm = mm[,-1]
+    mm = mm[,-1,drop=FALSE]
   }
   y.pred = mm %*% co
   
   fe.vars = names(object$fe)
   if (use.fe & length(fe.vars)>0) {
-    if (!all(fe.vars %in% colnames(mm))) {
-      missing = setdiff(fe.vars, colnames(mm))
-      warning("Cannot use fixed effects for ", paste0(missing, collapse=", "), " in prediction since no data is given.")
-      fe.vars = setdiff(fe.vars, missing)
-    }
-
     rows = as.integer(rownames(mm))
     nd = newdata[rows,]
     all.fe = getfe(object)
@@ -37,5 +51,5 @@ predict.felm = function(object, newdata, use.fe = TRUE,...) {
       y.pred = y.pred + myfe
     }
   }
-  y.pred
+  as.vector(y.pred)
 }

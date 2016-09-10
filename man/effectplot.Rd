@@ -8,7 +8,7 @@ effectplot(reg, dat = get.regression.data(reg, source.data = source.data),
   source.data = NULL, main = NULL, vars = intersect(colnames(dat),
   names(coef(reg))), ignore.vars = NULL, numeric.effect = "10-90",
   dummy01 = TRUE, sort = TRUE, scale.depvar = NULL,
-  depvar = names(reg$model)[[1]],
+  depvar = name.of.depvar(reg),
   xlab = "Explanatory variables\\n(low baseline high)",
   ylab = paste0("Effect on ", depvar, ""), colors = c(pos = "#11AAAA", neg =
   "#EE3355"), effect.sizes = NULL, effect.bases = NULL, horizontal = TRUE,
@@ -83,6 +83,8 @@ The plot shall help to compare magnitudes of the influence of different explanat
   reg = glm(y~x + x^2 + z +q, data=data, family="binomial")
   effectplot(reg,main="Effects", horizontal=TRUE, show.ci=TRUE)
 
+  coefplot(reg)
+
 
   # An example with factors
   
@@ -103,9 +105,21 @@ The plot shall help to compare magnitudes of the influence of different explanat
   reg = lm(regression.formula(dat), data=dat)
   reg
   effectplot(reg)
-
   # Short-cut
   reg = expanded.regression(lm(y~xf))
   effectplot(reg)
+ 
   
+  # An example for felm
+  T = 120
+  x1 <- rnorm(T)
+  x2 <- rnorm(T)
+  
+  fe1 = sample(c("yes","no"), T, replace=TRUE)
+  fe2 = sample(c("a","b","c"), T, replace=TRUE)
+  y <- -1*x1 + 3*x2 + (fe1=="yes") + 2*(fe2=="a") + (fe2=="b")+ rnorm(T)
+  dat = data.frame(y,x1,x2,fe1,fe2)
+  reg = felm(y~x1+x2 | fe1+fe2)
+  effectplot(reg)
+
 }}
