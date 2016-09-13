@@ -52,7 +52,7 @@ regression.data = function(formula=stats::formula(reg), reg=NULL, data=NULL, nor
   dep.var = data[[dv]]
   #browser()
   # remove NA from depvar
-  rownames(data) = dep.var
+  rownames(data) = seq_len(NROW(data))
   if (!expand) {
     mf = model.frame(formula,data=data)
   } else {
@@ -64,7 +64,7 @@ regression.data = function(formula=stats::formula(reg), reg=NULL, data=NULL, nor
   }
   if (NROW(mf) != NROW(dep.var)) {
     rows = as.integer(rownames(mf))
-    dep.var = dep.var[rows,]
+    dep.var = dep.var[rows]
   }
   
   dat = cbind(dep.var,mf)
