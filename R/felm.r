@@ -22,6 +22,9 @@ predict.felm = function(object, newdata, use.fe = TRUE,...) {
   restore.point("predict.felm")
   co = coef(object)
   
+  # too make code compatible with tibbles
+  newdata = as.data.frame(newdata)
+  
   rownames(newdata) = seq_along(newdata[,1])
   # model matrix without intercept
   mm = model.matrix(object = object,data = newdata)
