@@ -34,14 +34,14 @@ predict.felm = function(object, newdata, use.fe = TRUE,...) {
   rownames(newdata) = seq_along(newdata[,1])
   
   form = formula(object)
-  
   # Need to extract part before first |
   # use brute force string manipulation
-  form.str = as.character(form)[[3]]
+  library(Formula) # will be loaded by lfe anyways
+  form.str = as.character(Formula(form))
   pos = regexpr("|", form.str, fixed=TRUE)
   if (pos > 0) {
     form.str = substr(form.str,1,pos-1)
-    form = as.formula(paste0(" ~ ", form.str))
+    form = as.formula(form.str)
   }
   
   
