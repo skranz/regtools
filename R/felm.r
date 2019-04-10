@@ -1,19 +1,25 @@
 examples.predict.felm = function() {
+  library(regtools)
+  
   T = 12
-  x <- rnorm(T)
+  x <- 1:T
   fe1 = sample(c("yes","no"), T, replace=TRUE)
   fe2 = sample(c("a","b","c"), T, replace=TRUE)
-  y <- x1  + (fe1=="yes") + 2*(fe2=="a") + (fe2=="b")+ rnorm(T)
+  y <- x  + (fe1=="yes") + 2*(fe2=="a") + (fe2=="b")+ rnorm(T)
   
   new <- data.frame(
-    x = seq(-3, 3, length=T), 
+    x = (T+1):(2*T),
     fe1 = sample(c("yes","no"), T, replace=TRUE),
     fe2 = sample(c("a","b","c"), T, replace=TRUE)    
   )
-  p.lm = predict(lm(y ~ x+fe1+fe2), new)
-
-  library(lfe)  
-  p.felm = predict(felm(y~x|fe1+fe2),new)
+  p.lm = predict(lm(y~x+log(x)+fe1+fe2), new)
+  
+  library(lfe)
+  felm = felm(y~x+log(x)+fe1|fe2)
+  p.felm = predict.felm(felm,new)
+  
+  # Compare lm and felm predictions
+  # the predicted values should be the same
   cbind(p.lm, p.felm)
 }
 
@@ -26,14 +32,17 @@ predict.felm = function(object, newdata, use.fe = TRUE,...) {
   newdata = as.data.frame(newdata)
   
   rownames(newdata) = seq_along(newdata[,1])
-  # model matrix without intercept
-  mm = model.matrix(object = object,data = newdata)
+  
+  form = formula(object)
+  # model matrix
+  mf = model.frame(form, newdata)
+  mm = model.matrix(form,data=mf)
   
   if (NROW(mm)<NROW(newdata)) {
     warning("Observations dropped from newdata due to NA.")
   }
   
-  # remove intercept
+  # remove intercept if not included in coefficients
   if (NCOL(mm)==length(co)+1) {
     mm = mm[,-1,drop=FALSE]
   }
