@@ -21,6 +21,29 @@ examples.predict.felm = function() {
   # Compare lm and felm predictions
   # the predicted values should be the same
   cbind(p.lm, p.felm)
+  
+   library(regtools)
+  
+  T = 12
+  x <- 1:T
+  fe1 = sample(c("yes","no"), T, replace=TRUE)
+  fe2 = sample(c("a","b","c"), T, replace=TRUE)
+  y <- x  + (fe1=="yes") + 2*(fe2=="a") + (fe2=="b")+ rnorm(T)
+  
+  new <- data.frame(
+    x = (T+1):(2*T),
+    fe1 = sample(c("yes","no"), T, replace=TRUE),
+    fe2 = sample(c("a","b","c"), T, replace=TRUE)    
+  )
+  p.lm = predict(lm(y~x+log(x)+fe1+fe2), new)
+  
+  library(lfe)
+  felm = felm(y~x+log(x)+fe1+fe2)
+  p.felm = predict.felm(felm,new)
+  
+  # Compare lm and felm predictions
+  # the predicted values should be the same
+  cbind(p.lm, p.felm)
 }
 
 #' An implementaion of predict for felm
@@ -36,8 +59,10 @@ predict.felm = function(object, newdata, use.fe = TRUE,...) {
   form = formula(object)
   # Need to extract part before first |
   # use brute force string manipulation
-  library(Formula) # will be loaded by lfe anyways
-  form.str = as.character(Formula(form))
+  #library(Formula) # will be loaded by lfe anyways
+  #form.str = as.character(Formula(form))
+  
+  form.str = capture.output(form)
   pos = regexpr("|", form.str, fixed=TRUE)
   if (pos > 0) {
     form.str = substr(form.str,1,pos-1)
